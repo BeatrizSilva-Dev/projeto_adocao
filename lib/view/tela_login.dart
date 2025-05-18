@@ -1,3 +1,4 @@
+import 'package:adocao/view/tela_menu.dart';
 import 'package:flutter/material.dart';
 
 class LoginView extends StatefulWidget {
@@ -25,13 +26,13 @@ class _LoginViewState extends State<LoginView> {
               const SizedBox(height: 10.0),
               TextField(
                 controller: _emailController,
-                cursorColor: Colors.blueAccent,
+                cursorColor: Color(0xFF4359E8),
                 decoration: const InputDecoration(
                   hintText: 'jane@gmail.com',
 
                   focusedBorder: UnderlineInputBorder(
                     borderSide: BorderSide(
-                      color: Colors.blueAccent
+                      color: Color(0xFF4359E8)
                     )
                   ),
                 ),
@@ -45,13 +46,13 @@ class _LoginViewState extends State<LoginView> {
               const SizedBox(height: 10.0),
               TextField(
                 controller: _senhaController,
-                cursorColor: Colors.blueAccent,
+                cursorColor: Color(0xFF4359E8),
 
                 decoration: const InputDecoration(
                   hintText: '123',
                   focusedBorder: UnderlineInputBorder(
                       borderSide: BorderSide(
-                          color: Colors.blueAccent
+                          color: Color(0xFF4359E8)
                       )
                   ),
                 ),
@@ -65,9 +66,15 @@ class _LoginViewState extends State<LoginView> {
                     final email = _emailController.text;
                     final senha = _senhaController.text;
                     print('Login: $email / $senha');
+
+                    // Navega para a TelaMenu
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => const TelaMenu()),
+                    );
                   },
                   style: TextButton.styleFrom(
-                    backgroundColor: Colors.blueAccent,
+                    backgroundColor: Color(0xFF4359E8),
                     foregroundColor: Colors.white,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(30),
@@ -87,7 +94,7 @@ class _LoginViewState extends State<LoginView> {
                   },
                   style: TextButton.styleFrom(
                     backgroundColor: Colors.transparent,
-                    foregroundColor: Colors.blue,
+                    foregroundColor: Color(0xFF4359E8),
 
                   ),
                   child: const Text("Cadastre-se"),
