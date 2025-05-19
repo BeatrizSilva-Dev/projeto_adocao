@@ -1,7 +1,7 @@
 import 'package:adocao/model/lista_pets_model.dart';
 import 'package:adocao/view/tela_gato.dart';
 import 'package:adocao/view/tela_individual.dart';
-import 'package:adocao/view/tela_menu.dart';
+import 'package:adocao/view/tela_menu_adotante.dart';
 import 'package:flutter/material.dart';
 
 class TelaCachorro extends StatelessWidget {

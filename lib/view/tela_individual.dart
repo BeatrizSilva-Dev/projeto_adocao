@@ -1,6 +1,6 @@
 import 'package:adocao/view/tela_redirecionamento.dart';
 import 'package:flutter/material.dart';
-import 'package:adocao/view/tela_menu.dart'; // Certifique-se que essa tela existe e está importada corretamente
+import 'package:adocao/view/tela_menu_adotante.dart'; // Certifique-se que essa tela existe e está importada corretamente
 
 class TelaIndividual extends StatelessWidget {
   final String nome;

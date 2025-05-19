@@ -1,4 +1,6 @@
-import 'package:adocao/view/tela_menu.dart';
+import 'package:adocao/shared/custom_text_field.dart';
+import 'package:adocao/view/tela_cadastro.dart';
+import 'package:adocao/view/tela_menu_adotante.dart';
 import 'package:flutter/material.dart';
 
 class LoginView extends StatefulWidget {
@@ -21,26 +23,15 @@ class _LoginViewState extends State<LoginView> {
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisAlignment: MainAxisAlignment.start,
             children: <Widget>[
-              Image.asset("assets/gatinho_cachorrinho.png", width: 430, height: 400,),
+              Image.asset(
+                "assets/gatinho_cachorrinho.png",
+                width: double.infinity,
+                height: 300,
+                fit: BoxFit.cover,
+              ),
               const Text("E-mail"),
               const SizedBox(height: 10.0),
-              TextField(
-                controller: _emailController,
-                cursorColor: Color(0xFF4359E8),
-                decoration: const InputDecoration(
-                  hintText: 'jane@gmail.com',
-
-                  focusedBorder: UnderlineInputBorder(
-                    borderSide: BorderSide(
-                      color: Color(0xFF4359E8)
-                    )
-                  ),
-                ),
-
-                onTap: () {
-                  // Remove hintText temporariamente se quiser
-                },
-              ),
+              CustomTextField(controller: _emailController, hintText: 'jane@gmail.com', onTap: (){}, ),
               const SizedBox(height: 20.0),
               const Text("Senha"),
               const SizedBox(height: 10.0),
@@ -58,7 +49,7 @@ class _LoginViewState extends State<LoginView> {
                 ),
                 obscureText: true,
               ),
-              const SizedBox(height: 30.0),
+              const SizedBox(height: 100),
               Center(
                 child: TextButton(
                   onPressed: () {
@@ -84,13 +75,16 @@ class _LoginViewState extends State<LoginView> {
                   child: const Text("Entrar"),
                 ),
               ),
-              const SizedBox(height: 20.0),
+              const SizedBox(height: 20),
 
               // Segundo botão
               Center(
                 child: TextButton(
                   onPressed: () {
-
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => const TelaCadastro()),
+                    );
                   },
                   style: TextButton.styleFrom(
                     backgroundColor: Colors.transparent,
