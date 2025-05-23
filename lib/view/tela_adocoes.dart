@@ -1,11 +1,8 @@
 import 'package:adocao/model/lista_pets_model.dart';
 import 'package:adocao/model/pet_model.dart';
 import 'package:adocao/view/tela_add_pet.dart';
-import 'package:adocao/view/tela_menu_adotante.dart';
 import 'package:adocao/view/tela_menu_ong.dart';
 import 'package:flutter/material.dart';
-import 'package:adocao/model/pet_model.dart';
-
 
 class TelaAdocoes extends StatefulWidget {
   const TelaAdocoes({super.key});
@@ -32,12 +29,39 @@ class _TelaAdocoesState extends State<TelaAdocoes> {
         final infoController = TextEditingController(text: pet.info);
 
         return AlertDialog(
-          title: const Text("Editar Pet"),
+          title: const Text(
+            "Editar Pet",
+          ),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              TextField(controller: nomeController, decoration: const InputDecoration(labelText: 'Nome')),
-              TextField(controller: infoController, decoration: const InputDecoration(labelText: 'Informações')),
+              TextField(
+                controller: nomeController,
+                cursorColor: Color(0xFF4359E8),
+                decoration: const InputDecoration(
+                  labelText: 'Nome',
+                  focusedBorder: UnderlineInputBorder(
+                    borderSide: BorderSide(color: Color(0xFF4359E8)),
+                  ),
+                  enabledBorder: UnderlineInputBorder(
+                    borderSide: BorderSide(color: Color(0xFF4359E8)),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 10),
+              TextField(
+                controller: infoController,
+                cursorColor: Color(0xFF4359E8),
+                decoration: const InputDecoration(
+                  labelText: 'Informações',
+                  focusedBorder: UnderlineInputBorder(
+                    borderSide: BorderSide(color: Color(0xFF4359E8)),
+                  ),
+                  enabledBorder: UnderlineInputBorder(
+                    borderSide: BorderSide(color: Color(0xFF4359E8)),
+                  ),
+                ),
+              ),
             ],
           ),
           actions: [
@@ -53,6 +77,10 @@ class _TelaAdocoesState extends State<TelaAdocoes> {
                 });
                 Navigator.pop(context);
               },
+              style: TextButton.styleFrom(
+                backgroundColor: const Color(0xFF4359E8),
+                foregroundColor: Colors.white,
+              ),
               child: const Text("Salvar"),
             ),
           ],

@@ -60,7 +60,7 @@ class TelaRedirecionamento extends StatelessWidget {
                   OutlinedButton(
                     onPressed: () async {
                       const telefone = '5587991842218'; // Coloque o número real aqui com DDI+DDD
-                      final url = Uri.parse('https://wa.me/$telefone');
+                      final url = Uri.parse('whatsapp://send?phone=$telefone&text=${Uri.encodeComponent("Olá! Gostaria de falar sobre o pet.")}');
 
                       if (await canLaunchUrl(url)) {
                         await launchUrl(url, mode: LaunchMode.externalApplication);

@@ -1,13 +1,64 @@
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
 import 'package:adocao/shared/custom_text_field.dart';
 import 'package:adocao/view/tela_menu_adotante.dart';
-import 'package:flutter/material.dart';
 
 class TelaLoginAdotante extends StatelessWidget {
   TelaLoginAdotante({super.key});
-  final TextEditingController _login_adotante_Controller = TextEditingController();
-  final TextEditingController _nome_adotante_Controller = TextEditingController();
-  final TextEditingController _cel_adotante_Controller = TextEditingController();
+
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _nomeController = TextEditingController();
+  final TextEditingController _celularController = TextEditingController();
   final TextEditingController _senhaController = TextEditingController();
+
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+
+  Future<void> _cadastrarUsuario(BuildContext context) async {
+    final email = _emailController.text.trim();
+    final senha = _senhaController.text.trim();
+    final nome = _nomeController.text.trim();
+    final celular = _celularController.text.trim();
+
+    if (email.isEmpty || senha.isEmpty || nome.isEmpty || celular.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Preencha todos os campos.")),
+      );
+      return;
+    }
+
+    try {
+      await _auth.createUserWithEmailAndPassword(
+        email: email,
+        password: senha,
+      );
+
+      // Aqui você pode salvar nome e celular no Firestore se desejar
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Cadastro realizado com sucesso!")),
+      );
+
+      // Navegação removida daqui para evitar conflito
+
+    } on FirebaseAuthException catch (e) {
+      print("Código do erro Firebase: ${e.code}");
+      print("Mensagem: ${e.message}");
+
+      String mensagem = "Erro ao cadastrar.";
+      if (e.code == 'email-already-in-use') {
+        mensagem = "E-mail já está em uso.";
+      } else if (e.code == 'weak-password') {
+        mensagem = "Senha muito fraca (mínimo 6 caracteres).";
+      } else if (e.code == 'invalid-email') {
+        mensagem = "E-mail inválido.";
+      }
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(mensagem)),
+      );
+      throw e; // para ser capturado no botão
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -17,75 +68,60 @@ class TelaLoginAdotante extends StatelessWidget {
         child: ListView(
           padding: const EdgeInsets.all(24),
           children: [
-            //const SizedBox(height: 5),
             Image.asset(
               "assets/gatinho_cachorrinho.png",
               width: double.infinity,
               height: 300,
               fit: BoxFit.cover,
             ),
-            //const SizedBox(height: 10),
             const Text("Nome"),
-            CustomTextField(controller: _nome_adotante_Controller, hintText: 'jane', onTap: (){}, ),
+            CustomTextField(controller: _nomeController, hintText: 'jane', onTap: () {}),
             const SizedBox(height: 10),
             const Text("E-mail"),
-            CustomTextField(controller: _login_adotante_Controller, hintText: 'jane@gmail.com', onTap: (){}, ),
+            CustomTextField(controller: _emailController, hintText: 'jane@gmail.com', onTap: () {}),
             const SizedBox(height: 10),
             const Text("Celular"),
-            CustomTextField(controller: _cel_adotante_Controller, hintText: '00000-0000', onTap: (){}, ),
+            CustomTextField(controller: _celularController, hintText: '00000-0000', onTap: () {}),
             const SizedBox(height: 10),
             const Text("Senha"),
             TextField(
               controller: _senhaController,
-              cursorColor: Color(0xFF4359E8),
-
+              cursorColor: const Color(0xFF4359E8),
               decoration: const InputDecoration(
-                hintText: '123',
+                hintText: '••••••••',
                 focusedBorder: UnderlineInputBorder(
-                    borderSide: BorderSide(
-                        color: Color(0xFF4359E8)
-                    )
+                  borderSide: BorderSide(color: Color(0xFF4359E8)),
                 ),
               ),
               obscureText: true,
             ),
             const SizedBox(height: 40),
-            _buildButton(context, "CADASTRAR"),
+            ElevatedButton(
+              onPressed: () async {
+                try {
+                  await _cadastrarUsuario(context);
+                  print("Cadastro OK, navegando...");
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(builder: (_) => const TelaMenu()),
+                  );
+                } catch (e) {
+                  print("Erro: $e");
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text("Erro: $e")),
+                  );
+                }
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF4359E8),
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(vertical: 16),
+              ),
+              child: const Text("CADASTRAR"),
+            ),
           ],
         ),
       ),
     );
   }
-
-  Widget _buildInput(String label, {bool isPassword = false}) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
-      child: TextField(
-        obscureText: isPassword,
-        cursorColor: Color(0xFF4359E8),
-        decoration: InputDecoration(
-          labelText: label,
-          border: const OutlineInputBorder(),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildButton(BuildContext context, String label) {
-    return ElevatedButton(
-      onPressed: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => const TelaMenu()),
-        );
-      },
-      style: ElevatedButton.styleFrom(
-        backgroundColor: const Color(0xFF4359E8),
-        foregroundColor: Colors.white,
-        padding: const EdgeInsets.symmetric(vertical: 16),
-      ),
-      child: Text(label.toUpperCase()),
-    );
-  }
-
 }
