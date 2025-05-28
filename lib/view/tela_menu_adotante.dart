@@ -1,8 +1,10 @@
 import 'package:adocao/view/tela_cachorro.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class TelaMenu extends StatelessWidget {
-  const TelaMenu({super.key});
+  TelaMenu({super.key});
 
   @override
   Widget build(BuildContext context) {

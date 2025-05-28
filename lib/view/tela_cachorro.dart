@@ -1,7 +1,11 @@
 import 'package:adocao/model/lista_pets_model.dart';
+import 'package:adocao/model/pet_card.dart';
+import 'package:adocao/model/pet_model.dart';
 import 'package:adocao/view/tela_gato.dart';
 import 'package:adocao/view/tela_individual.dart';
 import 'package:adocao/view/tela_menu_adotante.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class TelaCachorro extends StatelessWidget {
@@ -9,8 +13,6 @@ class TelaCachorro extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final cachorros = pets.where((p) => p.tipo == 'cachorro').toList();
-
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -21,7 +23,7 @@ class TelaCachorro extends StatelessWidget {
           onPressed: () {
             Navigator.pushReplacement(
               context,
-              MaterialPageRoute(builder: (context) => const TelaMenu()),
+              MaterialPageRoute(builder: (context) => TelaMenu()),
             );
           },
         ),
@@ -40,33 +42,50 @@ class TelaCachorro extends StatelessWidget {
             ),
           ),
           Expanded(
-            child: GridView.count(
-              crossAxisCount: 2,
-              padding: const EdgeInsets.all(16),
-              crossAxisSpacing: 16,
-              mainAxisSpacing: 16,
-              children: List.generate(cachorros.length, (index) {
-                final pet = cachorros[index];
-                return GestureDetector(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => TelaIndividual(
-                          nome: pet.nome,
-                          info: pet.info,
-                          imagem: pet.imagem,
-                        ),
+            child: StreamBuilder(
+              stream: FirebaseFirestore.instance
+                  .collection('pets')
+                  .where('tipo', isEqualTo: 'cachorro')
+                  .snapshots(),
+              builder: (context, snapshot) {
+                if (!snapshot.hasData) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+
+                final documentos = snapshot.data!.docs;
+                final cachorros = documentos
+                    .map((doc) => Pet.fromMap(doc.data()))
+                    .toList();
+
+                return GridView.count(
+                  crossAxisCount: 2,
+                  padding: const EdgeInsets.all(16),
+                  crossAxisSpacing: 16,
+                  mainAxisSpacing: 16,
+                  children: List.generate(cachorros.length, (index) {
+                    final pet = cachorros[index];
+                    return GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => TelaIndividual(
+                              nome: pet.nome,
+                              info: pet.info,
+                              imagem: pet.imagem,
+                            ),
+                          ),
+                        );
+                      },
+                      child: PetCard(
+                        nome: pet.nome,
+                        info: pet.info,
+                        imagem: pet.imagem,
                       ),
                     );
-                  },
-                  child: PetCard(
-                    nome: pet.nome,
-                    info: pet.info,
-                    imagem: pet.imagem,
-                  ),
+                  }),
                 );
-              }),
+              },
             ),
           ),
         ],
@@ -77,9 +96,7 @@ class TelaCachorro extends StatelessWidget {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
-            // Ícone cachorro - sem clique (já está aqui)
             Image.asset('assets/icone_cachorro.png', height: 40),
-
             GestureDetector(
               onTap: () {
                 Navigator.pushReplacement(
@@ -92,39 +109,6 @@ class TelaCachorro extends StatelessWidget {
           ],
         ),
       ),
-    );
-  }
-}
-
-class PetCard extends StatelessWidget {
-  final String nome;
-  final String info;
-  final String imagem;
-
-  const PetCard({
-    super.key,
-    required this.nome,
-    required this.info,
-    required this.imagem,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        ClipRRect(
-          borderRadius: BorderRadius.circular(8),
-          child: Image.asset(
-            imagem,
-            height: 100,
-            width: 100,
-            fit: BoxFit.cover,
-          ),
-        ),
-        const SizedBox(height: 8),
-        Text(nome, style: const TextStyle(fontWeight: FontWeight.bold)),
-        Text(info),
-      ],
     );
   }
 }

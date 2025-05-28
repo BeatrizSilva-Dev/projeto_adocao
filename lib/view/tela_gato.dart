@@ -1,16 +1,17 @@
-import 'package:adocao/model/lista_pets_model.dart';
+import 'package:adocao/model/pet_card.dart';
+import 'package:adocao/model/pet_model.dart';
+import 'package:adocao/view/tela_cachorro.dart';
 import 'package:adocao/view/tela_individual.dart';
 import 'package:adocao/view/tela_menu_adotante.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'tela_cachorro.dart';
 
 class TelaGato extends StatelessWidget {
   const TelaGato({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final gatos = pets.where((p) => p.tipo == 'gato').toList();
-
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -21,7 +22,7 @@ class TelaGato extends StatelessWidget {
           onPressed: () {
             Navigator.pushReplacement(
               context,
-              MaterialPageRoute(builder: (context) => const TelaMenu()),
+              MaterialPageRoute(builder: (context) => TelaMenu()),
             );
           },
         ),
@@ -40,33 +41,50 @@ class TelaGato extends StatelessWidget {
             ),
           ),
           Expanded(
-            child: GridView.count(
-              crossAxisCount: 2,
-              padding: const EdgeInsets.all(16),
-              crossAxisSpacing: 16,
-              mainAxisSpacing: 16,
-              children: List.generate(gatos.length, (index) {
-                final pet = gatos[index];
-                return GestureDetector(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => TelaIndividual(
-                          nome: pet.nome,
-                          info: pet.info,
-                          imagem: pet.imagem,
-                        ),
+            child: StreamBuilder(
+              stream: FirebaseFirestore.instance
+                  .collection('pets')
+                  .where('tipo', isEqualTo: 'gato')
+                  .snapshots(),
+              builder: (context, snapshot) {
+                if (!snapshot.hasData) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+
+                final documentos = snapshot.data!.docs;
+                final gatos = documentos
+                    .map((doc) => Pet.fromMap(doc.data()))
+                    .toList();
+
+                return GridView.count(
+                  crossAxisCount: 2,
+                  padding: const EdgeInsets.all(16),
+                  crossAxisSpacing: 16,
+                  mainAxisSpacing: 16,
+                  children: List.generate(gatos.length, (index) {
+                    final pet = gatos[index];
+                    return GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => TelaIndividual(
+                              nome: pet.nome,
+                              info: pet.info,
+                              imagem: pet.imagem,
+                            ),
+                          ),
+                        );
+                      },
+                      child: PetCard(
+                        nome: pet.nome,
+                        info: pet.info,
+                        imagem: pet.imagem,
                       ),
                     );
-                  },
-                  child: PetCard(
-                    nome: pet.nome,
-                    info: pet.info,
-                    imagem: pet.imagem,
-                  ),
+                  }),
                 );
-              }),
+              },
             ),
           ),
         ],
@@ -77,6 +95,7 @@ class TelaGato extends StatelessWidget {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
+            Image.asset('assets/icone_gato.png', height: 40),
             GestureDetector(
               onTap: () {
                 Navigator.pushReplacement(
@@ -86,45 +105,9 @@ class TelaGato extends StatelessWidget {
               },
               child: Image.asset('assets/icone_cachorro.png', height: 40),
             ),
-
-            // Ícone gato - sem clique (já está na tela gato)
-            Image.asset('assets/icone_gato.png', height: 40),
           ],
         ),
       ),
-    );
-  }
-}
-
-class PetCard extends StatelessWidget {
-  final String nome;
-  final String info;
-  final String imagem;
-
-  const PetCard({
-    super.key,
-    required this.nome,
-    required this.info,
-    required this.imagem,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        ClipRRect(
-          borderRadius: BorderRadius.circular(8),
-          child: Image.asset(
-            imagem,
-            height: 100,
-            width: 100,
-            fit: BoxFit.cover,
-          ),
-        ),
-        const SizedBox(height: 8),
-        Text(nome, style: const TextStyle(fontWeight: FontWeight.bold)),
-        Text(info),
-      ],
     );
   }
 }

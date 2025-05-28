@@ -1,6 +1,9 @@
 import 'package:adocao/shared/custom_text_field.dart';
 import 'package:adocao/view/tela_cadastro.dart';
 import 'package:adocao/view/tela_menu_adotante.dart';
+import 'package:adocao/view/tela_menu_ong.dart';
+import 'package:adocao/view/tela_recuperar_senha.dart'; // ⬅️ IMPORTANTE
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
@@ -14,6 +17,14 @@ class LoginView extends StatefulWidget {
 class _LoginViewState extends State<LoginView> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _senhaController = TextEditingController();
+
+  void _mostrarDialogoRecuperarSenha(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const TelaRecuperarSenha()),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -32,23 +43,34 @@ class _LoginViewState extends State<LoginView> {
               ),
               const Text("E-mail"),
               const SizedBox(height: 10.0),
-              CustomTextField(controller: _emailController, hintText: 'jane@gmail.com', onTap: (){}, ),
+              CustomTextField(
+                controller: _emailController,
+                hintText: 'jane@gmail.com',
+                onTap: () {},
+              ),
               const SizedBox(height: 10.0),
               const Text("Senha"),
               const SizedBox(height: 10.0),
               TextField(
                 controller: _senhaController,
                 cursorColor: Color(0xFF4359E8),
-
                 decoration: const InputDecoration(
                   hintText: '123',
                   focusedBorder: UnderlineInputBorder(
-                      borderSide: BorderSide(
-                          color: Color(0xFF4359E8)
-                      )
+                    borderSide: BorderSide(color: Color(0xFF4359E8)),
                   ),
                 ),
                 obscureText: true,
+              ),
+              Align(
+                alignment: Alignment.centerRight,
+                child: TextButton(
+                  onPressed: () => _mostrarDialogoRecuperarSenha(context),
+                  child: const Text(
+                    'Esqueceu a senha?',
+                    style: TextStyle(color: Color(0xFF4359E8)),
+                  ),
+                ),
               ),
               const SizedBox(height: 150),
               Center(
@@ -61,11 +83,32 @@ class _LoginViewState extends State<LoginView> {
                       UserCredential userCredential = await FirebaseAuth.instance
                           .signInWithEmailAndPassword(email: email, password: senha);
 
-                      // Login bem sucedido, navega para a tela principal
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(builder: (context) => const TelaMenu()),
-                      );
+                      final querySnapshot = await FirebaseFirestore.instance
+                          .collection('usuarios')
+                          .where('email', isEqualTo: email)
+                          .limit(1)
+                          .get();
+
+                      if (querySnapshot.docs.isNotEmpty) {
+                        final userData = querySnapshot.docs.first.data();
+                        final tipo = userData['tipo'];
+
+                        if (tipo == 'adotante') {
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(builder: (context) => TelaMenu()),
+                          );
+                        } else if (tipo == 'ong') {
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(builder: (context) => TelaMenuOng()),
+                          );
+                        } else {
+                          _mostrarErro('Tipo de usuário desconhecido.');
+                        }
+                      } else {
+                        _mostrarErro('Dados do usuário não encontrados.');
+                      }
                     } on FirebaseAuthException catch (e) {
                       String message = '';
                       if (e.code == 'user-not-found') {
@@ -75,20 +118,7 @@ class _LoginViewState extends State<LoginView> {
                       } else {
                         message = 'Erro: ${e.message}';
                       }
-                      // Mostrar erro para o usuário (ex: Dialog ou SnackBar)
-                      showDialog(
-                        context: context,
-                        builder: (context) => AlertDialog(
-                          title: Text('Erro no login'),
-                          //content: Text(message),
-                          actions: [
-                            TextButton(
-                              onPressed: () => Navigator.pop(context),
-                              child: Text('Ok'),
-                            ),
-                          ],
-                        ),
-                      );
+                      _mostrarErro(message);
                     }
                   },
                   style: TextButton.styleFrom(
@@ -97,14 +127,11 @@ class _LoginViewState extends State<LoginView> {
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(30),
                     ),
-
                   ),
                   child: const Text("Entrar"),
                 ),
               ),
               const SizedBox(height: 20),
-
-              // Segundo botão
               Center(
                 child: TextButton(
                   onPressed: () {
@@ -116,7 +143,6 @@ class _LoginViewState extends State<LoginView> {
                   style: TextButton.styleFrom(
                     backgroundColor: Colors.transparent,
                     foregroundColor: Color(0xFF4359E8),
-
                   ),
                   child: const Text("Cadastre-se"),
                 ),
@@ -124,6 +150,22 @@ class _LoginViewState extends State<LoginView> {
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  void _mostrarErro(String mensagem) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Erro'),
+        content: Text(mensagem),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text('Ok'),
+          ),
+        ],
       ),
     );
   }

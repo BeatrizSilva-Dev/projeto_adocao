@@ -17,7 +17,7 @@ class TelaRedirecionamento extends StatelessWidget {
           onPressed: () {
             Navigator.pushReplacement(
               context,
-              MaterialPageRoute(builder: (context) => const TelaMenu()),
+              MaterialPageRoute(builder: (context) =>  TelaMenu()),
             );
           },
         ),

@@ -3,6 +3,7 @@
     <!-- PERMISSÃO DE INTERNET ADICIONADA AQUI 👇 -->
     <uses-permission android:name="android.permission.INTERNET" />
 
+
     <application
         android:label="adocao"
         android:name="${applicationName}"

@@ -1,10 +1,11 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:adocao/shared/custom_text_field.dart';
 import 'package:adocao/view/tela_menu_adotante.dart';
 
 class TelaLoginAdotante extends StatelessWidget {
-  TelaLoginAdotante({super.key});
+   TelaLoginAdotante({super.key});
 
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _nomeController = TextEditingController();
@@ -12,6 +13,8 @@ class TelaLoginAdotante extends StatelessWidget {
   final TextEditingController _senhaController = TextEditingController();
 
   final FirebaseAuth _auth = FirebaseAuth.instance;
+
+  final ValueNotifier<bool> _carregando = ValueNotifier(false);
 
   Future<void> _cadastrarUsuario(BuildContext context) async {
     final email = _emailController.text.trim();
@@ -26,24 +29,31 @@ class TelaLoginAdotante extends StatelessWidget {
       return;
     }
 
+    _carregando.value = true;
+
     try {
-      await _auth.createUserWithEmailAndPassword(
+      final cred = await _auth.createUserWithEmailAndPassword(
         email: email,
         password: senha,
       );
 
-      // Aqui você pode salvar nome e celular no Firestore se desejar
+      await FirebaseFirestore.instance.collection('usuarios').doc(cred.user!.uid).set({
+        'nome': nome,
+        'email': email,
+        'celular': celular,
+        'tipo': 'adotante',
+        'criadoEm': FieldValue.serverTimestamp(),
+      });
 
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Cadastro realizado com sucesso!")),
       );
 
-      // Navegação removida daqui para evitar conflito
-
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => TelaMenu()),
+      );
     } on FirebaseAuthException catch (e) {
-      print("Código do erro Firebase: ${e.code}");
-      print("Mensagem: ${e.message}");
-
       String mensagem = "Erro ao cadastrar.";
       if (e.code == 'email-already-in-use') {
         mensagem = "E-mail já está em uso.";
@@ -56,7 +66,12 @@ class TelaLoginAdotante extends StatelessWidget {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(mensagem)),
       );
-      throw e; // para ser capturado no botão
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Erro inesperado ao cadastrar.")),
+      );
+    } finally {
+      _carregando.value = false;
     }
   }
 
@@ -96,28 +111,21 @@ class TelaLoginAdotante extends StatelessWidget {
               obscureText: true,
             ),
             const SizedBox(height: 40),
-            ElevatedButton(
-              onPressed: () async {
-                try {
-                  await _cadastrarUsuario(context);
-                  print("Cadastro OK, navegando...");
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(builder: (_) => const TelaMenu()),
-                  );
-                } catch (e) {
-                  print("Erro: $e");
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text("Erro: $e")),
-                  );
-                }
+            ValueListenableBuilder<bool>(
+              valueListenable: _carregando,
+              builder: (context, carregando, _) {
+                return ElevatedButton(
+                  onPressed: carregando ? null : () => _cadastrarUsuario(context),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF4359E8),
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                  ),
+                  child: carregando
+                      ? const CircularProgressIndicator(color: Colors.white)
+                      : const Text("CADASTRAR"),
+                );
               },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF4359E8),
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(vertical: 16),
-              ),
-              child: const Text("CADASTRAR"),
             ),
           ],
         ),

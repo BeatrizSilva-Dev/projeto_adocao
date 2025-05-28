@@ -1,6 +1,8 @@
 import 'dart:io';
+import 'package:adocao/model/pet_model.dart';
 import 'package:adocao/view/tela_menu_ong.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
@@ -49,15 +51,22 @@ class _TelaAdicionarPetState extends State<TelaAdicionarPet> {
     _formKey.currentState!.save();
 
     final urlImagem = await _uploadImagem();
+    final ongId = FirebaseAuth.instance.currentUser?.uid;
 
-    await FirebaseFirestore.instance.collection('pets').add({
-      'nome': nome,
-      'especie': especie,
-      'raca': raca,
-      'idade': idade,
-      'porte': porte,
-      'descricao': descricao,
-      'imagemUrl': urlImagem ?? '',
+    // Cria o pet primeiro
+    final novoPet = Pet(
+      nome: nome,
+      tipo: especie, // tipo == especie (cachorro ou gato)
+      info: '$raca, $idade, $porte',
+      imagem: urlImagem ?? '',
+    );
+
+    // Salva no Firestore com campos adicionais
+    await FirebaseFirestore.instance
+        .collection('pets')
+        .add({
+      ...novoPet.toMap(),
+      'ongId': ongId,
       'dataCadastro': Timestamp.now(),
     });
 
@@ -67,6 +76,7 @@ class _TelaAdicionarPetState extends State<TelaAdicionarPet> {
 
     Navigator.pop(context);
   }
+
 
   @override
   Widget build(BuildContext context) {

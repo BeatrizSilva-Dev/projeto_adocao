@@ -58,23 +58,26 @@ class _TelaCadastroState extends State<TelaCadastro> {
               padding: const EdgeInsets.only(bottom: 30),
               child: ElevatedButton(
                 onPressed: () {
-                  if (tipoSelecionado != null) {
+                  if (tipoSelecionado == null) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text("Selecione um tipo de cadastro.")),
+                    );
+                    return;
+                  }
+
+                  if (tipoSelecionado!.toUpperCase().contains("ADOTAR")) {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(
-                        builder: (context) => tipoSelecionado == "INTERESSADO EM ADOTAR"
-                            ? TelaLoginAdotante()
-                            : TelaLoginOng(),
-                      ),
+                      MaterialPageRoute(builder: (_) => TelaLoginAdotante()),
                     );
                   } else {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text("Selecione uma opção para continuar."),
-                      ),
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => TelaCadastroOng()),
                     );
                   }
                 },
+
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF4359E8),
                   padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 16),
