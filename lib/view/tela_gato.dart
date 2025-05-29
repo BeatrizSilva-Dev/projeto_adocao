@@ -17,14 +17,28 @@ class TelaGato extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: const Color(0xFFD0E8FF),
         elevation: 0,
-        leading: IconButton(
-          icon: Image.asset('assets/icone_pata.png', height: 30),
-          onPressed: () {
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (context) => TelaMenu()),
-            );
-          },
+        automaticallyImplyLeading: false, // Remove a seta
+        title: Row(
+          children: [
+            IconButton(
+              icon: Image.asset('assets/icone_pata.png', height: 30),
+              onPressed: () {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (context) => TelaMenu()),
+                );
+              },
+            ),
+            const SizedBox(width: 8),
+            const Text(
+              'Menu',
+              style: TextStyle(
+                color: Colors.black,
+                fontSize: 18,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ],
         ),
       ),
       body: Column(
@@ -61,18 +75,16 @@ class TelaGato extends StatelessWidget {
                   padding: const EdgeInsets.all(16),
                   crossAxisSpacing: 16,
                   mainAxisSpacing: 16,
-                  children: List.generate(gatos.length, (index) {
-                    final pet = gatos[index];
+                  children: List.generate(documentos.length, (index) {
+                    final doc = documentos[index];
+                    final pet = Pet.fromMap(doc.data());
+
                     return GestureDetector(
                       onTap: () {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => TelaIndividual(
-                              nome: pet.nome,
-                              info: pet.info,
-                              imagem: pet.imagem,
-                            ),
+                            builder: (context) => TelaIndividual(petId: doc.id),
                           ),
                         );
                       },

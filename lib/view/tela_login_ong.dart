@@ -1,3 +1,4 @@
+import 'package:adocao/view/tela_menu_ong.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -44,7 +45,7 @@ class TelaCadastroOng extends StatelessWidget {
         'cnpj/cpf': cnpj,
         'email': email,
         'celular': celular,
-        'tipo': 'adotante',
+        'tipo': 'ong',
         'criadoEm': FieldValue.serverTimestamp(),
       });
 
@@ -54,7 +55,7 @@ class TelaCadastroOng extends StatelessWidget {
 
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (_) => TelaMenu()),
+        MaterialPageRoute(builder: (_) => TelaMenuOng()),
       );
     } on FirebaseAuthException catch (e) {
       String mensagem = "Erro ao cadastrar.";

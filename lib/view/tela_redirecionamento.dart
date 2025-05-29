@@ -1,4 +1,5 @@
 import 'package:adocao/view/tela_menu_adotante.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -59,17 +60,24 @@ class TelaRedirecionamento extends StatelessWidget {
                   const SizedBox(height: 140),
                   OutlinedButton(
                     onPressed: () async {
-                      const telefone = '5587991842218'; // Coloque o número real aqui com DDI+DDD
-                      final url = Uri.parse('whatsapp://send?phone=$telefone&text=${Uri.encodeComponent("Olá! Gostaria de falar sobre o pet.")}');
+                      const telefone = '5587991842218'; // DDI + DDD + número
+
+                      final url = kIsWeb
+                          ? Uri.parse('https://wa.me/$telefone?text=${Uri.encodeComponent("Olá! Gostaria de falar sobre o pet.")}')
+                          : Uri.parse('whatsapp://send?phone=$telefone&text=${Uri.encodeComponent("Olá! Gostaria de falar sobre o pet.")}');
 
                       if (await canLaunchUrl(url)) {
-                        await launchUrl(url, mode: LaunchMode.externalApplication);
+                        await launchUrl(
+                          url,
+                          mode: kIsWeb ? LaunchMode.platformDefault : LaunchMode.externalApplication,
+                        );
                       } else {
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(content: Text('Não foi possível abrir o WhatsApp.')),
                         );
                       }
                     },
+
                     style: TextButton.styleFrom(
                       side: const BorderSide(color: Color(0xFF4359E8)),
                       backgroundColor: const Color(0xFF4359E8),

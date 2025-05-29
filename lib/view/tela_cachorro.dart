@@ -1,3 +1,4 @@
+import 'package:adocao/controller/pet_controller.dart';
 import 'package:adocao/model/lista_pets_model.dart';
 import 'package:adocao/model/pet_card.dart';
 import 'package:adocao/model/pet_model.dart';
@@ -7,6 +8,8 @@ import 'package:adocao/view/tela_menu_adotante.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+
+final petController = PetController();
 
 class TelaCachorro extends StatelessWidget {
   const TelaCachorro({super.key});
@@ -18,14 +21,28 @@ class TelaCachorro extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: const Color(0xFFD0E8FF),
         elevation: 0,
-        leading: IconButton(
-          icon: Image.asset('assets/icone_pata.png', height: 30),
-          onPressed: () {
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (context) => TelaMenu()),
-            );
-          },
+        automaticallyImplyLeading: false, // Remove a seta
+        title: Row(
+          children: [
+            IconButton(
+              icon: Image.asset('assets/icone_pata.png', height: 30),
+              onPressed: () {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (context) => TelaMenu()),
+                );
+              },
+            ),
+            const SizedBox(width: 8),
+            const Text(
+              'Menu',
+              style: TextStyle(
+                color: Colors.black,
+                fontSize: 18,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ],
         ),
       ),
       body: Column(
@@ -41,6 +58,19 @@ class TelaCachorro extends StatelessWidget {
               ),
             ),
           ),
+          // ElevatedButton(
+          //   onPressed: () async {
+          //     await petController.atualizarPetsExistentes();
+          //     ScaffoldMessenger.of(context).showSnackBar(
+          //       const SnackBar(content: Text("Pets atualizados com sucesso")),
+          //     );
+          //   },
+          //   style: ElevatedButton.styleFrom(
+          //     backgroundColor: const Color(0xFF4359E8),
+          //     foregroundColor: Colors.white,
+          //   ),
+          //   child: const Text('Atualizar Pets no Firebase'),
+          // ),
           Expanded(
             child: StreamBuilder(
               stream: FirebaseFirestore.instance
@@ -62,18 +92,16 @@ class TelaCachorro extends StatelessWidget {
                   padding: const EdgeInsets.all(16),
                   crossAxisSpacing: 16,
                   mainAxisSpacing: 16,
-                  children: List.generate(cachorros.length, (index) {
-                    final pet = cachorros[index];
+                  children: List.generate(documentos.length, (index) {
+                    final doc = documentos[index];
+                    final pet = Pet.fromMap(doc.data());
+
                     return GestureDetector(
                       onTap: () {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => TelaIndividual(
-                              nome: pet.nome,
-                              info: pet.info,
-                              imagem: pet.imagem,
-                            ),
+                            builder: (context) => TelaIndividual(petId: doc.id),
                           ),
                         );
                       },
