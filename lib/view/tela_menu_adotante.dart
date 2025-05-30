@@ -33,26 +33,33 @@ class TelaMenu extends StatelessWidget {
         children: [
           const SizedBox(height: 40),
           Center(
-            child: OutlinedButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const TelaCachorro()),
-                );
-              },
-              style: OutlinedButton.styleFrom(
-                side: const BorderSide(color: Color(0xFF4359E8), width: 2),
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-              ),
-              child: const Text(
-                'ENCONTRE O SEU MELHOR AMIGO',
-                style: TextStyle(
-                  color: Color(0xFF4359E8),
-                  fontWeight: FontWeight.bold,
-                  letterSpacing: 1,
+            child: SizedBox(
+              width: double.infinity,
+              height: 48,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24),
+                child: ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => const TelaCachorro()),
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.white,
+                    foregroundColor: Color(0xFF4359E8),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      side: const BorderSide(color: Color(0xFF4359E8)), // <-- aqui
+                    ),
+                  ),
+                  child: const Text(
+                    'ENCONTRE O SEU MELHOR AMIGO',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 1,
+                    ),
+                  ),
                 ),
               ),
             ),

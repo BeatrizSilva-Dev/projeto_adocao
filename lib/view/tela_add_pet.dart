@@ -1,4 +1,12 @@
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 import 'dart:io' show File;
+import 'dart:io';
+import 'dart:typed_data';
+import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:file_selector/file_selector.dart';
 import 'dart:typed_data';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
@@ -31,35 +39,84 @@ class _TelaAdicionarPetState extends State<TelaAdicionarPet> {
   String descricao = '';
 
   Future<void> _selecionarImagem() async {
-    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
-    if (pickedFile != null) {
+    try {
       if (kIsWeb) {
-        final bytes = await pickedFile.readAsBytes();
-        setState(() {
-          imagemSelecionadaBytes = bytes;
-        });
+        // Web usa image_picker
+        final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+        if (pickedFile != null) {
+          final bytes = await pickedFile.readAsBytes();
+          setState(() {
+            imagemSelecionada = null;
+            imagemSelecionadaBytes = bytes;
+          });
+        }
+      } else if (Platform.isWindows || Platform.isLinux || Platform.isMacOS) {
+        // Desktop usa file_selector
+        final typeGroup = XTypeGroup(label: 'images', extensions: ['jpg', 'jpeg', 'png']);
+        final file = await openFile(acceptedTypeGroups: [typeGroup]);
+
+        if (file != null) {
+          final bytes = await file.readAsBytes();
+          setState(() {
+            imagemSelecionada = null;
+            imagemSelecionadaBytes = bytes;
+          });
+        }
       } else {
-        setState(() {
-          imagemSelecionada = File(pickedFile.path);
-        });
+        // Mobile usa image_picker
+        final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+        if (pickedFile != null) {
+          setState(() {
+            imagemSelecionada = File(pickedFile.path);
+            imagemSelecionadaBytes = null;
+          });
+        }
       }
+    } catch (e) {
+      print('Erro ao selecionar imagem: $e');
     }
   }
 
   Future<String?> _uploadImagem() async {
-    final ref = FirebaseStorage.instance
-        .ref()
-        .child('pets/${DateTime.now().millisecondsSinceEpoch}.jpg');
+    final clientId = 'f597663af74bbc4';
 
-    if (kIsWeb && imagemSelecionadaBytes != null) {
-      await ref.putData(imagemSelecionadaBytes!);
-    } else if (!kIsWeb && imagemSelecionada != null) {
-      await ref.putFile(imagemSelecionada!);
-    } else {
+    try {
+      if (kIsWeb && imagemSelecionadaBytes != null) {
+        final response = await http.post(
+          Uri.parse('https://api.imgur.com/3/image'),
+          headers: {
+            'Authorization': 'Client-ID $clientId',
+          },
+          body: {
+            'image': base64Encode(imagemSelecionadaBytes!),
+            'type': 'base64',
+          },
+        );
+
+        final data = jsonDecode(response.body);
+        return data['data']['link'];
+      } else if (!kIsWeb && imagemSelecionada != null) {
+        final bytes = await imagemSelecionada!.readAsBytes();
+        final response = await http.post(
+          Uri.parse('https://api.imgur.com/3/image'),
+          headers: {
+            'Authorization': 'Client-ID $clientId',
+          },
+          body: {
+            'image': base64Encode(bytes),
+            'type': 'base64',
+          },
+        );
+
+        final data = jsonDecode(response.body);
+        return data['data']['link'];
+      } else {
+        return null;
+      }
+    } catch (e) {
+      print("Erro ao enviar imagem para o Imgur: $e");
       return null;
     }
-
-    return await ref.getDownloadURL();
   }
 
   Future<void> _salvarPet() async {
@@ -115,22 +172,31 @@ class _TelaAdicionarPetState extends State<TelaAdicionarPet> {
               ),
             ],
           ),
+
           child: Form(
             key: _formKey,
             child: SingleChildScrollView(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Row(
+                  Row(
                     children: [
-                      Icon(Icons.pets, color: primaryColor),
-                      SizedBox(width: 8),
-                      Text(
-                        'Adoções',
+                      IconButton(
+                        icon: Image.asset('assets/icone_pata.png', height: 30),
+                        onPressed: () {
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(builder: (context) => const TelaMenuOng()),
+                          );
+                        },
+                      ),
+                      const SizedBox(width: 10),
+                      const Text(
+                        "Adoções",
                         style: TextStyle(
+                          color: Colors.black,
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
-                          color: primaryColor,
                         ),
                       ),
                     ],
@@ -139,7 +205,9 @@ class _TelaAdicionarPetState extends State<TelaAdicionarPet> {
                   Center(
                     child: Image.asset(
                       'assets/cachorro_gato2.png',
-                      height: 160,
+                      width: double.infinity,
+                      height: MediaQuery.of(context).size.height * 0.30,
+                      fit: BoxFit.cover,
                     ),
                   ),
                   const SizedBox(height: 20),

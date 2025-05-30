@@ -26,7 +26,7 @@ class _TelaRecuperarSenhaState extends State<TelaRecuperarSenha> {
         const SnackBar(content: Text('Link enviado! Verifique seu e-mail.')),
       );
 
-      Navigator.pop(context); // Volta para o login
+      Navigator.pop(context);
     } on FirebaseAuthException catch (e) {
       String msg = 'Erro ao enviar link.';
       if (e.code == 'user-not-found') {
@@ -42,12 +42,18 @@ class _TelaRecuperarSenhaState extends State<TelaRecuperarSenha> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color(0xFFCCE6FF), // Fundo azul claro
       appBar: AppBar(
-        title: const Text("Redefinição de senha"),
-        leading: BackButton(),
+        title: const Text(
+          "Redefinição de senha",
+          style: TextStyle(
+            color: Color(0xFF003366), // Azul escuro
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        leading: const BackButton(color: Color(0xFF003366)),
         backgroundColor: Colors.transparent,
         elevation: 0,
-        foregroundColor: Colors.black,
       ),
       body: Padding(
         padding: const EdgeInsets.all(24),
@@ -58,19 +64,38 @@ class _TelaRecuperarSenhaState extends State<TelaRecuperarSenha> {
             children: [
               const Text(
                 "Redefinição de senha!",
-                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF003366),
+                ),
               ),
               const SizedBox(height: 12),
               const Text(
                 "Informe um email e enviaremos um link para recuperação da sua senha.",
+                style: TextStyle(color: Colors.black87),
               ),
               const SizedBox(height: 24),
               TextFormField(
                 controller: _emailController,
                 keyboardType: TextInputType.emailAddress,
-                decoration: const InputDecoration(
-                  labelText: "Email",
-                  border: OutlineInputBorder(),
+                cursorColor: const Color(0xFF4359E8),
+                decoration: InputDecoration(
+                  hintText: "Email",
+                  filled: true,
+                  fillColor: Colors.white,
+                  contentPadding: const EdgeInsets.symmetric(
+                    vertical: 16,
+                    horizontal: 16,
+                  ),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide.none,
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: const BorderSide(color: Color(0xFF4359E8)),
+                  ),
                 ),
                 validator: (value) {
                   if (value == null || value.trim().isEmpty) {
@@ -89,12 +114,18 @@ class _TelaRecuperarSenhaState extends State<TelaRecuperarSenha> {
                 child: ElevatedButton(
                   onPressed: _enviando ? null : _enviarLinkRecuperacao,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.cyan[700],
+                    backgroundColor: const Color(0xFF4359E8), // Azul forte
                     foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
                   ),
                   child: _enviando
                       ? const CircularProgressIndicator(color: Colors.white)
-                      : const Text("Enviar link de recuperação"),
+                      : const Text(
+                    "Enviar link de recuperação",
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
                 ),
               ),
             ],
