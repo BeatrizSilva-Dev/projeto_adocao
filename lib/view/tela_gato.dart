@@ -72,9 +72,10 @@ class TelaGato extends StatelessWidget {
 
                 return GridView.count(
                   crossAxisCount: 2,
+                  childAspectRatio: 0.7,
                   padding: const EdgeInsets.all(16),
                   crossAxisSpacing: 16,
-                  mainAxisSpacing: 16,
+                  mainAxisSpacing: 0,
                   children: List.generate(documentos.length, (index) {
                     final doc = documentos[index];
                     final pet = Pet.fromMap(doc.data());
@@ -92,6 +93,9 @@ class TelaGato extends StatelessWidget {
                         nome: pet.nome,
                         info: pet.info,
                         imagem: pet.imagem,
+                        porte: pet.porte,
+                        raca: pet.raca,
+                        descricao: pet.descricao,
                       ),
                     );
                   }),

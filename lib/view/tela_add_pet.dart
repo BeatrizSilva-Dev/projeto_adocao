@@ -75,7 +75,8 @@ class _TelaAdicionarPetState extends State<TelaAdicionarPet> {
       info: '$raca, $idade',
       imagem: urlImagem ?? '',
       porte: '$porte',
-        raca: '$raca',
+      raca: '$raca',
+      descricao: '$descricao',
     );
 
     await FirebaseFirestore.instance.collection('pets').add({

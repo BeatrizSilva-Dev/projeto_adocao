@@ -60,9 +60,11 @@ class TelaCachorro extends StatelessWidget {
           ),
           // ElevatedButton(
           //   onPressed: () async {
-          //     await petController.atualizarPetsExistentes();
+          //     final controller = PetController();
+          //     await controller.atualizarPetsComDadosLocais();
+          //     //await controller.atualizarPetsAntigos();
           //     ScaffoldMessenger.of(context).showSnackBar(
-          //       const SnackBar(content: Text("Pets atualizados com sucesso")),
+          //       const SnackBar(content: Text('Pets atualizados com sucesso!')),
           //     );
           //   },
           //   style: ElevatedButton.styleFrom(
@@ -90,8 +92,9 @@ class TelaCachorro extends StatelessWidget {
                 return GridView.count(
                   crossAxisCount: 2,
                   padding: const EdgeInsets.all(16),
+                  childAspectRatio: 0.7,
                   crossAxisSpacing: 16,
-                  mainAxisSpacing: 16,
+                  mainAxisSpacing: 0,
                   children: List.generate(documentos.length, (index) {
                     final doc = documentos[index];
                     final pet = Pet.fromMap(doc.data());
@@ -109,6 +112,9 @@ class TelaCachorro extends StatelessWidget {
                         nome: pet.nome,
                         info: pet.info,
                         imagem: pet.imagem,
+                        porte: pet.porte,
+                        raca: pet.raca,
+                        descricao: pet.descricao,
                       ),
                     );
                   }),

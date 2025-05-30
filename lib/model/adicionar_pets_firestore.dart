@@ -1,31 +1,35 @@
-import 'package:adocao/model/lista_pets_model.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'dart:io';
 import 'package:firebase_storage/firebase_storage.dart';
-import 'package:flutter/services.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
-Future<void> adicionarPetsAoFirestore() async {
-  for (var pet in pets) {
-    // Carrega a imagem dos assets como bytes
-    final byteData = await rootBundle.load(pet.imagem);
-    final bytes = byteData.buffer.asUint8List();
+Future<void> salvarPetNoFirebase({
+  required String nome,
+  required String info,
+  required String tipo,
+  required String porte,
+  required String raca,
+  required String descricao,
+  required File imagemFile, // Imagem do dispositivo
+}) async {
+  try {
+    // 1. Upload para Firebase Storage
+    final storageRef = FirebaseStorage.instance.ref().child('pets/$nome.jpg');
+    final uploadTask = await storageRef.putFile(imagemFile);
+    final downloadUrl = await uploadTask.ref.getDownloadURL();
 
-    // Define o caminho no Storage
-    final storageRef = FirebaseStorage.instance.ref().child('pets/${pet.nome}.jpg');
+    // 2. Salvar no Firestore
+    await FirebaseFirestore.instance.collection('pets').add({
+      'nome': nome,
+      'info': info,
+      'tipo': tipo,
+      'porte': porte,
+      'raca': raca,
+      'descricao': descricao,
+      'imagem': downloadUrl, // URL gerada pelo Storage
+    });
 
-    try {
-      // Faz o upload
-      final uploadTask = await storageRef.putData(bytes);
-      final downloadUrl = await uploadTask.ref.getDownloadURL();
-
-      // Cria o documento no Firestore com a URL da imagem
-      await FirebaseFirestore.instance.collection('pets').add({
-        'nome': pet.nome,
-        'info': pet.info,
-        'imagem': downloadUrl, // agora é uma URL pública
-        'tipo': pet.tipo,
-      });
-    } catch (e) {
-      print('Erro ao enviar ${pet.nome}: $e');
-    }
+    print('Pet salvo com sucesso!');
+  } catch (e) {
+    print('Erro ao salvar pet: $e');
   }
 }

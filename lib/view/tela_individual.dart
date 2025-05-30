@@ -26,28 +26,30 @@ class TelaIndividual extends StatelessWidget {
           final nome = data['nome'] ?? 'Sem nome';
           final info = data['info'] ?? 'Sem info';
           final imagem = data['imagem'] ?? '';
+          final porte = data['porte'] ?? 'Sem porte';
+          final raca = data['raca'] ?? 'Sem raça';
+          final descricao = data['descricao'] ?? 'Sem descrição';
 
           return SingleChildScrollView(
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Stack(
                   children: [
                     Image.network(
                       imagem,
                       width: double.infinity,
-                      height: 300,
+                      height: 320,
                       fit: BoxFit.cover,
                     ),
                     Positioned(
-                      top: 40, // Abaixado para evitar corte
+                      top: 40,
                       left: 16,
-                      child: GestureDetector(
-                        onTap: () {
-                          Navigator.pop(context);
-                        },
-                        child: Image.asset(
-                          'assets/botao_voltar.png', // sua imagem personalizada
-                          height: 40,
+                      child: CircleAvatar(
+                        backgroundColor: Colors.white,
+                        child: IconButton(
+                          icon: const Icon(Icons.arrow_back, color: Colors.blue),
+                          onPressed: () => Navigator.pop(context),
                         ),
                       ),
                     ),
@@ -56,41 +58,69 @@ class TelaIndividual extends StatelessWidget {
                 const SizedBox(height: 20),
                 Text(
                   nome,
-                  style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                  style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.black87),
                 ),
-                const SizedBox(height: 10),
+                const SizedBox(height: 8),
+                Text(
+                  info,
+                  style: const TextStyle(fontSize: 16, color: Colors.grey),
+                ),
+                const SizedBox(height: 24),
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: Text(
-                    info,
-                    style: const TextStyle(fontSize: 18),
+                  padding: const EdgeInsets.symmetric(horizontal: 24),
+                  child: Column(
+                    children: [
+                      _buildInfoRow(Icons.pets, 'Porte', porte),
+                      const SizedBox(height: 12),
+                      _buildInfoRow(Icons.water_drop, 'Raça', raca),
+                      const SizedBox(height: 12),
+                      _buildInfoRow(Icons.favorite_border, 'Temperamento', descricao),
+                    ],
                   ),
                 ),
                 const SizedBox(height: 30),
-                TextButton(
+                ElevatedButton(
                   onPressed: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(
-                        builder: (context) => const TelaRedirecionamento(),
-                      ),
+                      MaterialPageRoute(builder: (context) => const TelaRedirecionamento()),
                     );
                   },
-                  style: TextButton.styleFrom(
+                  style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF4359E8),
                     foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 12),
+                    padding: const EdgeInsets.symmetric(horizontal: 60, vertical: 14),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(30),
                     ),
                   ),
-                  child: const Text("Adotar"),
+                  child: const Text("Adotar", style: TextStyle(fontSize: 16)),
                 ),
+                const SizedBox(height: 40),
               ],
             ),
           );
         },
       ),
+    );
+  }
+
+  Widget _buildInfoRow(IconData icon, String label, String value) {
+    return Row(
+      children: [
+        Icon(icon, color: Colors.blue),
+        const SizedBox(width: 10),
+        Text(
+          '$label: ',
+          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+        ),
+        Expanded(
+          child: Text(
+            value,
+            style: const TextStyle(fontSize: 16),
+          ),
+        ),
+      ],
     );
   }
 }

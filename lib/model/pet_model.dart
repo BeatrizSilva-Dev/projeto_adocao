@@ -5,6 +5,7 @@ class Pet {
   final String tipo;
   final String porte;
   final String raca;
+  final String descricao;
 
   Pet({
     required this.nome,
@@ -13,6 +14,7 @@ class Pet {
     required this.tipo,
     required this.porte,
     required this.raca,
+    required this.descricao,
   });
 
   factory Pet.fromMap(Map<String, dynamic> map) {
@@ -23,6 +25,7 @@ class Pet {
       tipo: map['tipo'] ?? '',
       porte: map['porte'] ?? '',
       raca: map['raca'] ?? '',
+      descricao: map['descricao'] ?? '',
     );
   }
 
@@ -34,6 +37,7 @@ class Pet {
       'tipo': tipo,
       'porte': porte,
       'raca': raca,
+      'descricao': descricao,
     };
   }
 }
