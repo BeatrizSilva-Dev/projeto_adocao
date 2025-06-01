@@ -37,6 +37,15 @@ class PetCard extends StatelessWidget {
                 height: 150, // maior imagem
                 width: double.infinity,
                 fit: BoxFit.cover,
+                errorBuilder: (BuildContext context, Object error, StackTrace? stackTrace) {
+                  // Aqui, caso dê erro, vai mostrar a imagem local do assets
+                  return Image.asset(
+                    'assets/logo.png', // caminho da sua imagem local
+                    height: 150,
+                    width: double.infinity,
+                    fit: BoxFit.cover,
+                  );
+                },
               ),
             ),
             const SizedBox(height: 8),

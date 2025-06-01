@@ -1,16 +1,11 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'dart:io' show File;
-import 'dart:io';
+import 'dart:io' show File, Platform;
 import 'dart:typed_data';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:file_selector/file_selector.dart';
-import 'dart:typed_data';
-import 'package:flutter/foundation.dart' show kIsWeb;
-import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -26,7 +21,6 @@ class TelaAdicionarPet extends StatefulWidget {
 
 class _TelaAdicionarPetState extends State<TelaAdicionarPet> {
   final _formKey = GlobalKey<FormState>();
-
   final picker = ImagePicker();
   File? imagemSelecionada;
   Uint8List? imagemSelecionadaBytes;
@@ -41,7 +35,6 @@ class _TelaAdicionarPetState extends State<TelaAdicionarPet> {
   Future<void> _selecionarImagem() async {
     try {
       if (kIsWeb) {
-        // Web usa image_picker
         final pickedFile = await picker.pickImage(source: ImageSource.gallery);
         if (pickedFile != null) {
           final bytes = await pickedFile.readAsBytes();
@@ -51,10 +44,8 @@ class _TelaAdicionarPetState extends State<TelaAdicionarPet> {
           });
         }
       } else if (Platform.isWindows || Platform.isLinux || Platform.isMacOS) {
-        // Desktop usa file_selector
         final typeGroup = XTypeGroup(label: 'images', extensions: ['jpg', 'jpeg', 'png']);
         final file = await openFile(acceptedTypeGroups: [typeGroup]);
-
         if (file != null) {
           final bytes = await file.readAsBytes();
           setState(() {
@@ -63,7 +54,6 @@ class _TelaAdicionarPetState extends State<TelaAdicionarPet> {
           });
         }
       } else {
-        // Mobile usa image_picker
         final pickedFile = await picker.pickImage(source: ImageSource.gallery);
         if (pickedFile != null) {
           setState(() {
@@ -78,62 +68,79 @@ class _TelaAdicionarPetState extends State<TelaAdicionarPet> {
   }
 
   Future<String?> _uploadImagem() async {
-    final clientId = 'f597663af74bbc4';
+    final clientId = 'f597663af74bbc4'; // Confirme que esse client ID está ativo
 
     try {
+      Uint8List? bytes;
+
       if (kIsWeb && imagemSelecionadaBytes != null) {
-        final response = await http.post(
-          Uri.parse('https://api.imgur.com/3/image'),
-          headers: {
-            'Authorization': 'Client-ID $clientId',
-          },
-          body: {
-            'image': base64Encode(imagemSelecionadaBytes!),
-            'type': 'base64',
-          },
-        );
-
-        final data = jsonDecode(response.body);
-        return data['data']['link'];
+        bytes = imagemSelecionadaBytes!;
       } else if (!kIsWeb && imagemSelecionada != null) {
-        final bytes = await imagemSelecionada!.readAsBytes();
-        final response = await http.post(
-          Uri.parse('https://api.imgur.com/3/image'),
-          headers: {
-            'Authorization': 'Client-ID $clientId',
-          },
-          body: {
-            'image': base64Encode(bytes),
-            'type': 'base64',
-          },
-        );
+        bytes = await imagemSelecionada!.readAsBytes();
+      }
 
-        final data = jsonDecode(response.body);
-        return data['data']['link'];
-      } else {
+      if (bytes == null) {
+        print("Nenhuma imagem selecionada.");
         return null;
       }
-    } catch (e) {
-      print("Erro ao enviar imagem para o Imgur: $e");
+
+      final base64Image = base64Encode(bytes);
+
+      final response = await http.post(
+        Uri.parse('https://api.imgur.com/3/image'),
+        headers: {
+          'Authorization': 'Client-ID $clientId',
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: {
+          'image': base64Image,
+          'type': 'base64',
+        },
+      );
+
+      print("Status code: ${response.statusCode}");
+      print("Response body: ${response.body}");
+
+      final data = jsonDecode(response.body);
+
+      if (response.statusCode == 200 && data['success'] == true) {
+        return data['data']['link'];
+      } else {
+        print("Erro Imgur: ${data['data']['error']}");
+        return null;
+      }
+    } catch (e, stack) {
+      print("Erro ao fazer upload no Imgur: $e");
+      print("Stack trace: $stack");
       return null;
     }
   }
+
+
 
   Future<void> _salvarPet() async {
     if (!_formKey.currentState!.validate()) return;
     _formKey.currentState!.save();
 
     final urlImagem = await _uploadImagem();
+
+    if (urlImagem == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Erro ao enviar imagem para o Imgur.')),
+      );
+      return;
+    }
+
     final ongId = FirebaseAuth.instance.currentUser?.uid;
 
     final pet = Pet(
       nome: nome,
       tipo: especie,
       info: '$raca, $idade',
-      imagem: urlImagem ?? '',
-      porte: '$porte',
-      raca: '$raca',
-      descricao: '$descricao',
+      imagem: urlImagem,
+      porte: porte,
+      raca: raca,
+      descricao: descricao,
     );
 
     await FirebaseFirestore.instance.collection('pets').add({
@@ -172,7 +179,6 @@ class _TelaAdicionarPetState extends State<TelaAdicionarPet> {
               ),
             ],
           ),
-
           child: Form(
             key: _formKey,
             child: SingleChildScrollView(

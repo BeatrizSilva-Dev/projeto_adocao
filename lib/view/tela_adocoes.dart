@@ -21,51 +21,55 @@ class _TelaAdocoesState extends State<TelaAdocoes> {
 
     showDialog(
       context: context,
-      builder: (_) => AlertDialog(
-        title: const Text("Editar Pet"),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(
-              controller: nomeController,
-              cursorColor: const Color(0xFF4359E8),
-              decoration: const InputDecoration(
-                labelText: 'Nome',
-                focusedBorder: UnderlineInputBorder(
-                  borderSide: BorderSide(color: Color(0xFF4359E8)),
+      builder:
+          (_) => AlertDialog(
+            title: const Text("Editar Pet"),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextField(
+                  controller: nomeController,
+                  cursorColor: const Color(0xFF4359E8),
+                  decoration: const InputDecoration(
+                    labelText: 'Nome',
+                    focusedBorder: UnderlineInputBorder(
+                      borderSide: BorderSide(color: Color(0xFF4359E8)),
+                    ),
+                  ),
                 ),
-              ),
-            ),
-            const SizedBox(height: 10),
-            TextField(
-              controller: infoController,
-              cursorColor: const Color(0xFF4359E8),
-              decoration: const InputDecoration(
-                labelText: 'Informações',
-                focusedBorder: UnderlineInputBorder(
-                  borderSide: BorderSide(color: Color(0xFF4359E8)),
+                const SizedBox(height: 10),
+                TextField(
+                  controller: infoController,
+                  cursorColor: const Color(0xFF4359E8),
+                  decoration: const InputDecoration(
+                    labelText: 'Informações',
+                    focusedBorder: UnderlineInputBorder(
+                      borderSide: BorderSide(color: Color(0xFF4359E8)),
+                    ),
+                  ),
                 ),
+              ],
+            ),
+            actions: [
+              TextButton(
+                onPressed: () async {
+                  await FirebaseFirestore.instance
+                      .collection('pets')
+                      .doc(docId)
+                      .update({
+                        'nome': nomeController.text,
+                        'info': infoController.text,
+                      });
+                  Navigator.pop(context);
+                },
+                style: TextButton.styleFrom(
+                  backgroundColor: const Color(0xFF4359E8),
+                  foregroundColor: Colors.white,
+                ),
+                child: const Text("Salvar"),
               ),
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () async {
-              await FirebaseFirestore.instance.collection('pets').doc(docId).update({
-                'nome': nomeController.text,
-                'info': infoController.text,
-              });
-              Navigator.pop(context);
-            },
-            style: TextButton.styleFrom(
-              backgroundColor: const Color(0xFF4359E8),
-              foregroundColor: Colors.white,
-            ),
-            child: const Text("Salvar"),
+            ],
           ),
-        ],
-      ),
     );
   }
 
@@ -123,19 +127,38 @@ class _TelaAdocoesState extends State<TelaAdocoes> {
                   child: Row(
                     children: [
                       imagem.isNotEmpty
-                          ? Image.network(imagem, width: 80, height: 80, fit: BoxFit.cover)
-                          : Container(
-                        width: 80,
-                        height: 80,
-                        color: Colors.grey[300],
-                        child: const Icon(Icons.image_not_supported),
-                      ),
+                          ? Image.network(
+                            imagem,
+                            width: 80,
+                            height: 80,
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) {
+                              return Image.asset(
+                                'assets/logo.png',
+                                height: 80,
+                                // width: double.infinity,
+                                fit: BoxFit.cover,
+                              );
+                            },
+                          )
+                          : Image.asset(
+                            'assets/logo.png',
+                            height: 80,
+                            // width: double.infinity,
+                            fit: BoxFit.cover,
+                          ),
                       const SizedBox(width: 12),
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(nome, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                            Text(
+                              nome,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16,
+                              ),
+                            ),
                             const SizedBox(height: 4),
                             Text(info),
                           ],
@@ -158,7 +181,9 @@ class _TelaAdocoesState extends State<TelaAdocoes> {
         child: ElevatedButton(
           style: ElevatedButton.styleFrom(
             backgroundColor: const Color(0xFF4359E8),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
             padding: const EdgeInsets.symmetric(vertical: 16),
           ),
           onPressed: () {

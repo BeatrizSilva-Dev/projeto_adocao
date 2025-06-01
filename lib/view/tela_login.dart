@@ -59,8 +59,7 @@ class _LoginViewState extends State<LoginView> {
                   borderRadius: BorderRadius.circular(16),
                   child: Image.asset(
                     "assets/gatinho_cachorrinho.png",
-                    width: double.infinity,
-                    height: MediaQuery.of(context).size.height * 0.45,
+                    height: MediaQuery.of(context).size.height * 0.35,
                     fit: BoxFit.cover,
 
                   ),
