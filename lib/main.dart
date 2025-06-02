@@ -1,4 +1,5 @@
 import 'package:adocao/view/splash_screen.dart';
+import 'package:adocao/view/tela_adocoes.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'firebase_options.dart'; // Adicione essa importação
@@ -21,7 +22,8 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: const SplashScreen(),
+      //home: const SplashScreen(),
+      home: const TelaAdocoes(),
     );
   }
 }

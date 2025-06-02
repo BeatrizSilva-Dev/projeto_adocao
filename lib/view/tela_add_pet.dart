@@ -1,3 +1,4 @@
+// IMPORTS ORIGINAIS
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'dart:io' show File, Platform;
@@ -68,7 +69,7 @@ class _TelaAdicionarPetState extends State<TelaAdicionarPet> {
   }
 
   Future<String?> _uploadImagem() async {
-    final clientId = 'f597663af74bbc4'; // Confirme que esse client ID está ativo
+    final clientId = 'f597663af74bbc4';
 
     try {
       Uint8List? bytes;
@@ -116,8 +117,6 @@ class _TelaAdicionarPetState extends State<TelaAdicionarPet> {
     }
   }
 
-
-
   Future<void> _salvarPet() async {
     if (!_formKey.currentState!.validate()) return;
     _formKey.currentState!.save();
@@ -160,6 +159,18 @@ class _TelaAdicionarPetState extends State<TelaAdicionarPet> {
   @override
   Widget build(BuildContext context) {
     const primaryColor = Color(0xFF4359E8);
+
+    final inputDecoration = InputDecoration(
+      filled: true,
+      fillColor: const Color(0xFFF6F8FA),
+      labelStyle: const TextStyle(color: Colors.black), // <- ALTERADO AQUI
+      hintStyle: const TextStyle(color: Colors.grey),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide.none,
+      ),
+    );
 
     return Scaffold(
       backgroundColor: const Color(0xFFD4E7FF),
@@ -212,13 +223,14 @@ class _TelaAdicionarPetState extends State<TelaAdicionarPet> {
                     child: Image.asset(
                       'assets/cachorro_gato2.png',
                       width: double.infinity,
-                      height: MediaQuery.of(context).size.height * 0.30,
+                      height: MediaQuery.of(context).size.height * 0.37,
                       fit: BoxFit.cover,
                     ),
                   ),
                   const SizedBox(height: 20),
                   TextFormField(
-                    decoration: const InputDecoration(
+                    cursorColor: primaryColor,
+                    decoration: inputDecoration.copyWith(
                       labelText: 'Nome',
                       hintText: 'Ex: Bob',
                     ),
@@ -244,7 +256,8 @@ class _TelaAdicionarPetState extends State<TelaAdicionarPet> {
                   ),
                   const SizedBox(height: 10),
                   TextFormField(
-                    decoration: const InputDecoration(
+                    cursorColor: primaryColor,
+                    decoration: inputDecoration.copyWith(
                       labelText: 'Raça',
                       hintText: 'Ex: Labrador',
                     ),
@@ -252,7 +265,8 @@ class _TelaAdicionarPetState extends State<TelaAdicionarPet> {
                   ),
                   const SizedBox(height: 10),
                   TextFormField(
-                    decoration: const InputDecoration(
+                    cursorColor: primaryColor,
+                    decoration: inputDecoration.copyWith(
                       labelText: 'Idade',
                       hintText: 'Ex: 2 (anos)',
                     ),
@@ -292,8 +306,9 @@ class _TelaAdicionarPetState extends State<TelaAdicionarPet> {
                     ),
                   const SizedBox(height: 16),
                   TextFormField(
+                    cursorColor: primaryColor,
                     maxLines: 3,
-                    decoration: const InputDecoration(
+                    decoration: inputDecoration.copyWith(
                       labelText: 'Descrição',
                       hintText: 'Conte um pouco sobre o pet...',
                     ),

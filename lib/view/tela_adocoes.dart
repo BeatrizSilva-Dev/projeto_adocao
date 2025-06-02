@@ -32,6 +32,9 @@ class _TelaAdocoesState extends State<TelaAdocoes> {
                   cursorColor: const Color(0xFF4359E8),
                   decoration: const InputDecoration(
                     labelText: 'Nome',
+                    labelStyle: TextStyle(
+                        color: Colors.black
+                    ),
                     focusedBorder: UnderlineInputBorder(
                       borderSide: BorderSide(color: Color(0xFF4359E8)),
                     ),
@@ -43,6 +46,9 @@ class _TelaAdocoesState extends State<TelaAdocoes> {
                   cursorColor: const Color(0xFF4359E8),
                   decoration: const InputDecoration(
                     labelText: 'Informações',
+                    labelStyle: TextStyle(
+                      color: Colors.black
+                    ),
                     focusedBorder: UnderlineInputBorder(
                       borderSide: BorderSide(color: Color(0xFF4359E8)),
                     ),

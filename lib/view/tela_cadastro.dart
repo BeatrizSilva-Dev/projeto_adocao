@@ -73,7 +73,7 @@ class _TelaCadastroState extends State<TelaCadastro> {
                   } else {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (_) => TelaCadastroOng()),
+                      MaterialPageRoute(builder: (_) => TelaLoginOng()),
                     );
                   }
                 },
