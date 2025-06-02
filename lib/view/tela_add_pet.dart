@@ -122,13 +122,7 @@ class _TelaAdicionarPetState extends State<TelaAdicionarPet> {
     _formKey.currentState!.save();
 
     final urlImagem = await _uploadImagem();
-
-    if (urlImagem == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Erro ao enviar imagem para o Imgur.')),
-      );
-      return;
-    }
+    final imagemPadrao = 'https://i.imgur.com/6UtQy87.png';
 
     final ongId = FirebaseAuth.instance.currentUser?.uid;
 
@@ -136,7 +130,7 @@ class _TelaAdicionarPetState extends State<TelaAdicionarPet> {
       nome: nome,
       tipo: especie,
       info: '$raca, $idade',
-      imagem: urlImagem,
+      imagem: urlImagem ?? imagemPadrao,
       porte: porte,
       raca: raca,
       descricao: descricao,

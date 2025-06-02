@@ -22,8 +22,8 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      //home: const SplashScreen(),
-      home: const TelaAdocoes(),
+      home: const SplashScreen(),
+      //home: const TelaAdocoes(),
     );
   }
 }
